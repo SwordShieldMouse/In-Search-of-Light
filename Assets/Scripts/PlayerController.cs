@@ -6,7 +6,9 @@ public class PlayerController : MonoBehaviour {
 	public float jumpSpeed = 2.5f;
 	public float zOffset = -1.5f;
 	public GameObject projectile;
+	public int projectileLimit = 3;
 
+	private int currentProjectiles;
 	private Rigidbody rb; 
 	
 	// Use this for initialization
@@ -16,6 +18,18 @@ public class PlayerController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		// Projectile code
+		if (Input.GetButtonDown("Fire1") && projectileLimit > currentProjectiles) {
+			// Spawns a projectile starting at the player,
+			// with an offset on the z-axis so that they can be seen
+			Instantiate(
+				projectile, 
+				new Vector3(transform.position.x, transform.position.y, zOffset), 
+				Quaternion.identity
+				);
+			currentProjectiles++;
+		}
+
 		// Jump put in update to make it more responsive
 		if (IsGrounded () && Input.GetButtonDown ("Jump")) {
 			rb.velocity = new Vector3(
@@ -23,16 +37,6 @@ public class PlayerController : MonoBehaviour {
 				jumpSpeed,
 				0
 				);
-		}
-
-		// Projectile code
-		if (Input.GetMouseButtonDown (0)) {
-			// Spawns a projectile starting at the player,
-			// with an offset on the z-axis so that they can be seen
-			Instantiate(
-				projectile, 
-				new Vector3(transform.position.x, transform.position.y, zOffset), 
-				Quaternion.identity);
 		}
 	}
 	
@@ -48,5 +52,10 @@ public class PlayerController : MonoBehaviour {
 	bool IsGrounded() {
 		return Physics.Raycast(rb.position, -Vector3.up, 
 		                         GetComponent<Collider>().bounds.extents.y + 0.1f);
+	}
+
+	// Decrements projectile counter
+	public void UpdateProjectiles() {
+		currentProjectiles--;
 	}
 }
