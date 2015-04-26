@@ -7,12 +7,11 @@ public class CameraController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+		player = GameObject.FindGameObjectWithTag ("Player").gameObject;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		player = GameObject.FindGameObjectWithTag ("Player").gameObject;
 		transform.position = player.transform.position + offset;
 	}
 }

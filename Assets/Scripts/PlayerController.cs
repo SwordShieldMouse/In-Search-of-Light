@@ -4,16 +4,17 @@ using System.Collections;
 public class PlayerController : MonoBehaviour {
 	public float speed = 5.0f;
 	public float jumpSpeed = 2.5f;
-	public float zOffset = -1.5f;
 	public GameObject projectile;
 	public const int projectileLimit = 3;
+	public float maxLightIntensity = 3.0f;
+	public float minLightIntensity = 1.0f;
 
 	private int currentProjectiles;
-	private Rigidbody rb; 
+	private Rigidbody2D rb; 
 	
 	// Use this for initialization
 	void Start () {
-		rb = GetComponent<Rigidbody> ();
+		rb = GetComponent<Rigidbody2D> ();
 		currentProjectiles = 0;
 	}
 	
@@ -26,33 +27,36 @@ public class PlayerController : MonoBehaviour {
 			currentProjectiles++;
 			Instantiate(
 				projectile, 
-				new Vector3(transform.position.x, transform.position.y, zOffset), 
+				new Vector2(transform.position.x, transform.position.y), 
 				Quaternion.identity
 				);
 		}
 
 		// Jump put in update to make it more responsive
 		if (IsGrounded () && Input.GetButtonDown ("Jump")) {
-			rb.velocity = new Vector3(
+			rb.velocity = new Vector2(
 				rb.velocity.x, 
-				jumpSpeed,
-				0
+				jumpSpeed
 				);
 		}
+
+		// Player light pulses
+		float theta = (Mathf.Ceil(Time.time) - Time.time) * Mathf.PI;
+		GetComponentInChildren<Light>().intensity = (Mathf.Abs (Mathf.Sin (theta)))
+			* maxLightIntensity / (2 * Mathf.PI) + minLightIntensity;
 	}
 	
 	void FixedUpdate() {
 		float move = Input.GetAxis ("Horizontal");
-		rb.velocity = new Vector3 (
+		rb.velocity = new Vector2 (
 			move * speed,
-			rb.velocity.y,
-			0.0f
+			rb.velocity.y
 			);
 	}
 	
 	bool IsGrounded() {
-		return Physics.Raycast(rb.position, -Vector3.up, 
-		                         GetComponent<Collider>().bounds.extents.y + 0.1f);
+		return Physics2D.Raycast(rb.position, -Vector2.up, 
+		                         GetComponent<Collider2D>().bounds.extents.y + 0.1f);
 	}
 
 	// Decrements projectile counter

@@ -6,12 +6,12 @@ public class ProjectileController : MonoBehaviour {
 	public float lifeTime = 4.0f;
 	public float maxLightIntensity = 8.0f;
 	public float fadeRate = 0.1f;
-	public float minLightIntensity = 4.0f;
+	public float minLightIntensity = 5.0f;
 	public float startAngularVelocity = -1.0f;
 	public float slowdownRate = 0.5f;
 
 	private float spawnTime;
-	private Rigidbody rb;
+	private Rigidbody2D rb;
 	private Color colour;
 	private GameObject player;
 	private Light lt;
@@ -25,15 +25,15 @@ public class ProjectileController : MonoBehaviour {
 		isFading = false;
 		attached = false;
 		slowingDown = false;
-		lt = GetComponent<Light> ();
-		colour = GetComponent<Renderer> ().material.color;
 
-		// Set the trajectory of the projectile to mouse position
-		rb = GetComponent<Rigidbody> ();
+		// Lighting
+		lt = GetComponentInChildren<Light> ();
+
+		colour = GetComponent<SpriteRenderer> ().material.color;
 		player = GameObject.FindGameObjectWithTag ("Player");
 
-		// Prevent the projectile from rotating about the x, y axes and messing up the collider
-		rb.rotation = Quaternion.Euler (0, 0, rb.rotation.z);
+		// Set the trajectory of the projectile to mouse position
+		rb = GetComponent<Rigidbody2D> ();
 
 		// Get the distance between the mouse and the player,
 		// then normalize because we use it to determine projectile trajectory
@@ -45,18 +45,19 @@ public class ProjectileController : MonoBehaviour {
 			// Get the mouse position, then convert to world space
 			Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-			Vector3 distance = mousePosition - player.transform.position;
-			distance.z = 0;
+			Vector2 distance = new Vector2(mousePosition.x - player.transform.position.x,
+			                               mousePosition.y - player.transform.position.y
+			                               );
 
 			// Ensures that the max magnitude of the vector is 1
 			// With this implementation, the further away the mouse is, the faster the projectile
-			distance = Vector3.ClampMagnitude(distance, 1.0f);
+			distance = Vector2.ClampMagnitude(distance, 1.0f);
 
-			rb.velocity = new Vector3 (distance.x, distance.y, 0) * speed;
-
+			rb.velocity = new Vector2 (distance.x, distance.y) * speed;
+			
 			// Give angular momentum to the projectile about the z-axis
 			// The spin direction changes based on trajectory
-			rb.angularVelocity = new Vector3(0.0f, 0.0f, startAngularVelocity) * Mathf.Sign (distance.x);
+			rb.angularVelocity = startAngularVelocity * Mathf.Sign (distance.x);
 
 		} else {
 			Debug.Log ("Main Camera is missing");
@@ -91,15 +92,15 @@ public class ProjectileController : MonoBehaviour {
 	void FixedUpdate() {
 		// Makes attaching to a platform appear smooth
 		if (slowingDown) {
-			rb.velocity = Vector3.Lerp(rb.velocity, Vector3.zero, slowdownRate);
-			rb.angularVelocity = Vector3.Lerp(rb.angularVelocity, Vector3.zero, slowdownRate);
+			rb.velocity = Vector2.Lerp(rb.velocity, Vector2.zero, slowdownRate);
+			rb.angularVelocity = Mathf.Lerp(rb.angularVelocity, 0.0f, slowdownRate);
 		}
 	}
 
-	void OnTriggerEnter(Collider other) {
+	void OnTriggerEnter2D(Collider2D other) {
 		// Makes the light stick to the surface it lands on
 		if (other.tag == "Platform") {
-			rb.useGravity = false;
+			rb.gravityScale = 0.0f;
 			attached = true;
 			slowingDown = true;
 			spawnTime = Time.time;
