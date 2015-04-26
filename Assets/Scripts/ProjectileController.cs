@@ -28,6 +28,7 @@ public class ProjectileController : MonoBehaviour {
 
 		// Lighting
 		lt = GetComponentInChildren<Light> ();
+		lt.intensity = maxLightIntensity;
 
 		colour = GetComponent<SpriteRenderer> ().material.color;
 		player = GameObject.FindGameObjectWithTag ("Player");
@@ -68,7 +69,9 @@ public class ProjectileController : MonoBehaviour {
 	void Update () {
 		if (((Time.time - spawnTime) > lifeTime) && attached) {
 			isFading = true;
-			GetComponent<ParticleSystem>().Stop();
+		} else if (((Time.time - spawnTime) * 1.75f > lifeTime) && attached) {
+			// Stop particles a little before lifetime is over to make transition smooth
+			GetComponent<ParticleSystem>().enableEmission = false;
 		}
 
 		if (isFading) {
