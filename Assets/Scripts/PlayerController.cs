@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour {
 	public float jumpSpeed = 2.5f;
 	public float zOffset = -1.5f;
 	public GameObject projectile;
-	public int projectileLimit = 3;
+	public const int projectileLimit = 3;
 
 	private int currentProjectiles;
 	private Rigidbody rb; 
@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		rb = GetComponent<Rigidbody> ();
+		currentProjectiles = 0;
 	}
 	
 	// Update is called once per frame
@@ -22,12 +23,12 @@ public class PlayerController : MonoBehaviour {
 		if (Input.GetButtonDown("Fire1") && projectileLimit > currentProjectiles) {
 			// Spawns a projectile starting at the player,
 			// with an offset on the z-axis so that they can be seen
+			currentProjectiles++;
 			Instantiate(
 				projectile, 
 				new Vector3(transform.position.x, transform.position.y, zOffset), 
 				Quaternion.identity
 				);
-			currentProjectiles++;
 		}
 
 		// Jump put in update to make it more responsive
@@ -56,6 +57,8 @@ public class PlayerController : MonoBehaviour {
 
 	// Decrements projectile counter
 	public void UpdateProjectiles() {
-		currentProjectiles--;
+		if (currentProjectiles > 0) {
+			currentProjectiles--;
+		}
 	}
 }
