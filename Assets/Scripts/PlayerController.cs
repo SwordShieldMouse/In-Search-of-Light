@@ -10,7 +10,8 @@ public class PlayerController : MonoBehaviour {
 	public float minLightIntensity = 1.0f;
 
 	private int currentProjectiles;
-	private Rigidbody2D rb; 
+	private Rigidbody2D rb;
+
 	
 	// Use this for initialization
 	void Start () {
@@ -25,6 +26,8 @@ public class PlayerController : MonoBehaviour {
 			// Spawns a projectile starting at the player,
 			// with an offset on the z-axis so that they can be seen
 			currentProjectiles++;
+			// TODO: Make a list of projectiles, and update their properties individually instead of updating the prefab
+			// e.x., their lighting and spawning
 			Instantiate(
 				projectile, 
 				new Vector2(transform.position.x, transform.position.y), 

@@ -14,7 +14,10 @@ public class ProjectileController : MonoBehaviour {
 	private Rigidbody2D rb;
 	private Color colour;
 	private GameObject player;
-	private Light lt;
+
+	private Light iLight;
+	private Light bodyLight;
+
 	private bool isFading;
 	private bool slowingDown;
 
@@ -27,10 +30,10 @@ public class ProjectileController : MonoBehaviour {
 		slowingDown = false;
 
 		// Lighting
-		lt = GetComponentInChildren<Light> ();
-		lt.intensity = maxLightIntensity;
+		iLight = GameObject.FindGameObjectWithTag ("Projectile Illumination").GetComponent<Light> ();
+		iLight.intensity = maxLightIntensity;
+		bodyLight = GameObject.FindGameObjectWithTag ("Projectile Body").GetComponent<Light> ();
 
-		colour = GetComponent<SpriteRenderer> ().material.color;
 		player = GameObject.FindGameObjectWithTag ("Player");
 
 		// Set the trajectory of the projectile to mouse position
@@ -75,18 +78,19 @@ public class ProjectileController : MonoBehaviour {
 		}
 
 		if (isFading) {
-			colour.a = Mathf.Lerp(colour.a, 0.0f, fadeRate);
-			lt.intensity = Mathf.Lerp(lt.intensity, 0.0f, fadeRate);
+			bodyLight.intensity =  Mathf.Lerp(bodyLight.intensity, 0.0f, fadeRate);
+			bodyLight.range = Mathf.Lerp(bodyLight.range, 0.0f, fadeRate);
+			iLight.intensity = Mathf.Lerp(iLight.intensity, 0.0f, fadeRate);
 		} else {
 			float theta = (Mathf.Ceil(Time.time) - Time.time) * Mathf.PI;
-			lt.intensity = (Mathf.Abs (Mathf.Sin (theta)))
+			iLight.intensity = (Mathf.Abs (Mathf.Sin (theta)))
 							* maxLightIntensity / (2 * Mathf.PI) + minLightIntensity;
 			// We divide by 2pi since Unity gives us the value in radians
 		}
 
 		// Deletes the projectile if the light intensity is below a certain threshold
 		// and its lifetime has passed
-		if (isFading && (lt.intensity <= 0.5f)) {
+		if (isFading && (iLight.intensity <= 0.5f)) {
 			Destroy(gameObject);
 			player.GetComponent<PlayerController>().UpdateProjectiles();
 		}
