@@ -10,19 +10,18 @@ public class ProjectileController : MonoBehaviour {
 	public float startAngularVelocity = -1.0f;
 	public float slowdownRate = 0.5f;
 
-	private float spawnTime;
+	public float spawnTime;
 	private Rigidbody2D rb;
-	private Color colour;
 	private GameObject player;
 
 	private Light iLight;
 	private Light bodyLight;
 
-	private bool isFading;
-	private bool slowingDown;
+	public bool isFading;
+	public bool slowingDown;
 
 	// Determines if projectile has attached to any surface
-	private bool attached;
+	public bool attached;
 
 	void Start () {
 		isFading = false;
@@ -91,8 +90,7 @@ public class ProjectileController : MonoBehaviour {
 		// Deletes the projectile if the light intensity is below a certain threshold
 		// and its lifetime has passed
 		if (isFading && (iLight.intensity <= 0.5f)) {
-			Destroy(gameObject);
-			player.GetComponent<PlayerController>().UpdateProjectiles();
+			//Destroy(gameObject);
 		}
 	}
 
@@ -112,5 +110,9 @@ public class ProjectileController : MonoBehaviour {
 			slowingDown = true;
 			spawnTime = Time.time;
 		}
+	}
+
+	public IEnumerator ProjectileDeath() {
+		
 	}
 }

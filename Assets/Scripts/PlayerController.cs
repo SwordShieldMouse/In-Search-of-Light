@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour {
 	public float speed = 5.0f;
@@ -9,31 +10,32 @@ public class PlayerController : MonoBehaviour {
 	public float maxLightIntensity = 3.0f;
 	public float minLightIntensity = 1.0f;
 
-	private int currentProjectiles;
+	private Dictionary<GameObject, float> projectiles;
 	private Rigidbody2D rb;
 
 	
 	// Use this for initialization
 	void Start () {
 		rb = GetComponent<Rigidbody2D> ();
-		currentProjectiles = 0;
+		projectiles = new Dictionary<GameObject, float> ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		// Projectile code
-		if (Input.GetButtonDown("Fire1") && projectileLimit > currentProjectiles) {
+		if (Input.GetButtonDown("Fire1") && projectileLimit > projectiles.Count) {
 			// Spawns a projectile starting at the player,
 			// with an offset on the z-axis so that they can be seen
-			currentProjectiles++;
-			// TODO: Make a list of projectiles, and update their properties individually instead of updating the prefab
-			// e.x., their lighting and spawning
-			Instantiate(
+			projectiles.Add(Instantiate(
 				projectile, 
 				new Vector2(transform.position.x, transform.position.y), 
 				Quaternion.identity
-				);
+				) as GameObject,
+			                Time.time);
 		}
+
+		// Update the projectiles
+		UpdateProjectiles ();
 
 		// Jump put in update to make it more responsive
 		if (IsGrounded () && (Input.GetButtonDown ("Jump"))) {
@@ -62,10 +64,17 @@ public class PlayerController : MonoBehaviour {
 		                         GetComponent<Collider2D>().bounds.extents.y + 0.1f);
 	}
 
-	// Decrements projectile counter
-	public void UpdateProjectiles() {
-		if (currentProjectiles > 0) {
-			currentProjectiles--;
+	void UpdateProjectiles() {
+		foreach (KeyValuePair<GameObject, float> k in projectiles) {
+			if (k.Value > Time.time + k.Key.GetComponent<ProjectileController>().lifeTime) {
+				Destroy(k.Key.gameObject);
+				projectiles.Remove(k.Key);
+			} else if (k.Key == null) {
+				// In case the object has already been destroyed
+				projectiles.Remove(k.Key);
+			} else {
+
+			}
 		}
 	}
 }
