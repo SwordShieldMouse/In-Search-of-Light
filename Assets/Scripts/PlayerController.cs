@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		// Jump put in update to make it more responsive
-		if (IsGrounded () && Input.GetButtonDown ("Jump")) {
+		if (IsGrounded () && (Input.GetButtonDown ("Jump"))) {
 			rb.velocity = new Vector2(
 				rb.velocity.x, 
 				jumpSpeed
