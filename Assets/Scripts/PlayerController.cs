@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -23,50 +24,76 @@ public class PlayerController : MonoBehaviour {
 
 	// For the projectile
 	public GameObject projectile;
-	public const int projectileLimit = 3;
+	//public const int projectileLimit = 3;
+	public float resourceLimit = 1.0f;
+	public float projectileCost = 0.3f;
+	public float resourceRefreshRate = 0.1f;
 	public float maxLightIntensity = 3.0f;
 	public float minLightIntensity = 1.0f;
 	public float lightRange = 8.0f;
 	public float projectileLifeTime = 4.0f;
 	public float fadeRate = 0.5f;
 
+	// For resource bar
+	public Slider slider;
+
+	private float currentResource;
 	private List<Projectile> projectiles;
 	private Rigidbody2D rb;
 
 	
 	// Use this for initialization
-	void Start () {
+	void Awake	 () {
 		rb = GetComponent<Rigidbody2D> ();
 		projectiles = new List<Projectile> ();
+		currentResource = resourceLimit;
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		// Projectile code
-		if (Input.GetButtonDown("Fire1") && projectileLimit > projectiles.Count) {
+
+	void ProjectileCheck() {
+		if (Input.GetButtonDown("Fire1") && (currentResource - projectileCost) >= 0) {
 			// Spawns a projectile starting at the player,
 			// with an offset on the z-axis so that they can be seen
 			Projectile p = new Projectile(Instantiate(projectile, new Vector2(transform.position.x, transform.position.y), Quaternion.identity)
-			                                         as GameObject,
-			                                         Time.time, false, false);
+			                              as GameObject,
+			                              Time.time, false, false);
 			// Add lights for projectile
 			Light l = p.gObject.AddComponent<Light>();
 			l.intensity = maxLightIntensity;
 			l.range = lightRange;
-
+			
 			projectiles.Add(p);
+			currentResource -= projectileCost;
 		}
+	}
 
-		// Update the projectiles
-		UpdateProjectiles ();
+	void UpdateResources() {
+		// Update resource bar
+		if (currentResource < resourceLimit) {
+			currentResource = Mathf.Clamp (currentResource + resourceRefreshRate * Time.deltaTime,
+			                               currentResource, resourceLimit);
+		}
+		slider.value = currentResource;	
+	}
 
-		// Jump put in update to make it more responsive
+	void JumpCheck() {
 		if (IsGrounded () && (Input.GetButtonDown ("Jump"))) {
 			rb.velocity = new Vector2(
 				rb.velocity.x, 
 				jumpSpeed
 				);
 		}
+	}
+
+	// Update is called once per frame
+	void Update () {
+		ProjectileCheck ();
+
+		// Update the projectiles
+		UpdateProjectiles ();
+
+		UpdateResources ();
+
+		JumpCheck ();
 
 		// Player light pulses
 		float theta = (Mathf.Ceil(Time.time) - Time.time) * Mathf.PI;
