@@ -24,7 +24,6 @@ public class PlayerController : MonoBehaviour {
 
 	// For the projectile
 	public GameObject projectile;
-	//public const int projectileLimit = 3;
 	public float resourceLimit = 1.0f;
 	public float projectileCost = 0.3f;
 	public float resourceRefreshRate = 0.1f;
@@ -33,11 +32,11 @@ public class PlayerController : MonoBehaviour {
 	public float lightRange = 8.0f;
 	public float projectileLifeTime = 4.0f;
 	public float fadeRate = 0.5f;
-
+	
 	// For resource bar
 	public Slider slider;
 
-	private float currentResource;
+	public float currentResource;
 	private List<Projectile> projectiles;
 	private Rigidbody2D rb;
 
@@ -60,21 +59,26 @@ public class PlayerController : MonoBehaviour {
 			Light l = p.gObject.AddComponent<Light>();
 			l.intensity = maxLightIntensity;
 			l.range = lightRange;
+			// Set transform and offset
+			l.transform.position.Set(l.transform.position.x,
+			                               l.transform.position.y,
+			                               -2.0f);
 			
 			projectiles.Add(p);
 			currentResource -= projectileCost;
 		}
 	}
-
+	
 	void UpdateResources() {
 		// Update resource bar
+		// TODO: Maybe implement character dimming when light orbs are sent out
 		if (currentResource < resourceLimit) {
 			currentResource = Mathf.Clamp (currentResource + resourceRefreshRate * Time.deltaTime,
 			                               currentResource, resourceLimit);
 		}
 		slider.value = currentResource;	
 	}
-
+	
 	void JumpCheck() {
 		if (IsGrounded () && (Input.GetButtonDown ("Jump"))) {
 			rb.velocity = new Vector2(
@@ -88,9 +92,7 @@ public class PlayerController : MonoBehaviour {
 	void Update () {
 		ProjectileCheck ();
 
-		// Update the projectiles
 		UpdateProjectiles ();
-
 		UpdateResources ();
 
 		JumpCheck ();
