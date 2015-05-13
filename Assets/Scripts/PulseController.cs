@@ -14,16 +14,18 @@ public class PulseController : MonoBehaviour {
 	void Update () {
 		currentResource = gameObject.GetComponent<PlayerController> ().currentResource;
 		SecondaryCheck (SecondaryFireCheck());
+
 	}
 
 	IEnumerator FadeLight(Light light) {	
-		yield return new WaitForSeconds (0.5f);
+		yield return new WaitForSeconds (0.3f);
 		for (float f = 1.0f; f >= 0; f -= 0.05f) {
 			light.intensity = Mathf.Lerp(light.intensity, 0.0f, 0.4f);
 			light.range = Mathf.Lerp(light.range, 0.0f, 0.4f);
 			yield return new WaitForSeconds(0.05f);
 		}
 		Destroy (light);
+		Destroy (light.gameObject);
 		secondarySpawned = false;
 	}
 
@@ -38,12 +40,6 @@ public class PulseController : MonoBehaviour {
 			// Effectiveness of light scales with resource bar
 			light.intensity = 8.0f * currentResource;
 			light.range = 70.0f * currentResource;
-		
-			light.transform.position.Set (
-			light.transform.position.x,
-			light.transform.position.y,
-			-1.0f
-			);
 		}
 	}
 
@@ -54,9 +50,9 @@ public class PulseController : MonoBehaviour {
 
 			GameObject g = new GameObject("Pulse Holder");
 			g.transform.parent = gameObject.transform;
-			g.transform.position.Set(
-				g.transform.position.x,
-				g.transform.position.y,
+			g.transform.localPosition = new Vector3(
+				0.0f,
+				0.0f,
 				-1.0f
 				);
 			Light light = g.AddComponent<Light>();
